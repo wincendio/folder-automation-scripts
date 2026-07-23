@@ -2,6 +2,7 @@
 # batch_ocrmypdf.sh
 # Run ocrmypdf on all PDF files in the current directory.
 # Output files are saved to ./output/ with the same filename.
+# Files that already exist in ./output/ are skipped.
 #
 # Dependencies: ocrmypdf
 #   Install: pip install ocrmypdf  OR  brew install ocrmypdf
@@ -23,14 +24,32 @@ fi
 
 echo "Found ${#pdf_files[@]} PDF file(s). Starting OCR..."
 
+skipped=0
+processed=0
+failed=0
+
 for f in "${pdf_files[@]}"; do
-  echo "  Processing: $f"
-  ocrmypdf \
+  if [ -f "$OUTPUT_DIR/$f" ]; then
+    echo "  [skip]    $f  (already exists in output/)"
+    (( skipped++ )) || true
+    continue
+  fi
+
+  echo "  [ocr]     $f"
+  if ocrmypdf \
     --language chi_sim+eng \
     --rotate-pages \
     --deskew \
     --output-type pdfa \
-    "$f" "$OUTPUT_DIR/$f" && echo "  Done: output/$f" || echo "  FAILED: $f"
+    "$f" "$OUTPUT_DIR/$f"; then
+    echo "  [done]    output/$f"
+    (( processed++ )) || true
+  else
+    echo "  [failed]  $f"
+    (( failed++ )) || true
+  fi
 done
 
-echo "\nAll done. Output saved to: $OUTPUT_DIR"
+echo ""
+echo "Summary: ${processed} processed, ${skipped} skipped, ${failed} failed."
+echo "Output saved to: $OUTPUT_DIR"
