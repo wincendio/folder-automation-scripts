@@ -2,7 +2,6 @@
 # batch_ocrmypdf.sh
 #
 # 对当前工作目录中的所有 PDF 批量执行 OCRmyPDF。
-#
 # 内置功能：
 #   - 仅扫描当前目录中的 .pdf / .PDF 文件，不递归处理子目录
 #   - 使用简体中文 + 英文识别模型（chi_sim+eng）
